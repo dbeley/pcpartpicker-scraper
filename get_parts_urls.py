@@ -23,7 +23,9 @@ def main():
 
     url_index = "https://pcpartpicker.com/products"
     soup_index = BeautifulSoup(requests.get(url_index).content, features='lxml')
-    cat_products = soup_index.find('div', {'class': 'full-column'}).find_all('li')
+    # cat_products = soup_index.findAll('div', {'class': 'block'})
+    cat_products = [x for y in soup_index.findAll('div', {'class': 'block'}) for x in y.findAll('li') if y.find('li')]
+    # cat_products = soup_index.find('div', {'class': 'block'}).find_all('li')
     soup_index.decompose()
 
     all_products = []
@@ -37,7 +39,7 @@ def main():
             browser.get(cat_link)
             time.sleep(5)
             soup = BeautifulSoup(browser.page_source, 'lxml')
-            products = soup.find_all('td', {'class': 'tdname'})
+            products = soup.find_all('td', {'class': 'td__name'})
             soup.decompose()
             if not products:
                 logger.debug("No products found")

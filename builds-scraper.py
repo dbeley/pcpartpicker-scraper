@@ -36,12 +36,12 @@ def main():
             dict_build['Author'] = str(soup_build.find('p', {'class': 'owner'}).find('a').text)
 
             # Build comments
-            comments_text = [x.text.strip() for x in soup_build.find_all('div', {'class': 'comment-message'})]
-            comments_user = [x.text.strip() for x in soup_build.find_all('a', {'class': 'comment-username'})]
-            list_comments = []
-            for u, t in zip(comments_user, comments_text):
-                list_comments.append({'username': u, 'content': t})
-            dict_build['Comment'] = str(list_comments)
+            # comments_text = [x.text.strip() for x in soup_build.find_all('div', {'class': 'comment-message'})]
+            # comments_user = [x.text.strip() for x in soup_build.find_all('a', {'class': 'comment-username'})]
+            # list_comments = []
+            # for u, t in zip(comments_user, comments_text):
+            #     list_comments.append({'username': u, 'content': t})
+            # dict_build['Comment'] = str(list_comments)
 
             # Detailed build informations
             details_title = [x.text for x in soup_build.find('div', {'class': 'part-details'}).find_all('h4')]
@@ -70,37 +70,40 @@ def main():
                         count_component_type = 2
                         old_component_type = component_type
                 except Exception as e:
-                    logger.warning(f"component_type : {str(e)}")
+                    logger.debug(f"component_type : {str(e)}")
                     pass
                 try:
                     component_name = attr[2].text.strip()
                 except Exception as e:
-                    logger.warning(f"component_name : {str(e)}")
+                    logger.debug(f"component_name : {str(e)}")
                     pass
-                try:
-                    component_price = attr[3].text
-                except Exception as e:
-                    logger.warning(f"component_price : {str(e)}")
-                    pass
+                # try:
+                #     component_price = attr[3].text
+                # except Exception as e:
+                #     logger.debug(f"component_price : {str(e)}")
+                #     pass
                 try:
                     component_final_price = attr[7].text
                 except Exception as e:
-                    logger.warning(f"component_final_price : {str(e)}")
+                    logger.debug(f"component_final_price : {str(e)}")
                     pass
                 try:
                     component_shop = attr[8].text.strip()
                 except Exception as e:
-                    logger.warning(f"component_shop : {str(e)}")
+                    logger.debug(f"component_shop : {str(e)}")
                     pass
                 dict_build[component_type] = component_name
-                dict_build[f"{component_type} Price"] = component_price
-                dict_build[f"{component_type} Final Price"] = component_final_price
+                # dict_build[f"{component_type} Price"] = component_price
+                dict_build[f"{component_type} Price"] = component_final_price
                 dict_build[f"{component_type} Shop"] = component_shop
 
             logger.debug(f"Final dict_build : {dict_build}")
             dict_builds[index] = dict_build
         except Exception as e:
             logger.error(f"Problem extracting product : {str(e)}")
+        # if index > 2:
+        #     break
+        time.sleep(2)
 
     df = pd.DataFrame.from_dict(dict_builds, orient='index')
     filename = f"Exports/pcpartpicker-builds-data.csv"

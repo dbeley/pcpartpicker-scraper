@@ -3,6 +3,7 @@ import logging
 import argparse
 import requests
 import pandas as pd
+from tqdm import tqdm
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger()
@@ -21,42 +22,73 @@ def main():
         parts_urls = f.read().splitlines()
 
     dict_parts = {}
-    for index, url in enumerate(parts_urls):
+    header_found = False
+    for index, url in tqdm(enumerate(parts_urls), total=len(parts_urls)):
         dict_part = {}
+        logger.debug(f"url : {url}")
         soup_url = get_soup(url)
-        dict_part['Category'] = soup_url.find('h4', {'class': 'kind'}).text
-        dict_part['Name'] = soup_url.find('h1', {'class': 'name'}).text
-        print(f"Extracting {index} - {dict_part['Category']} - {dict_part['Name']} at {url}")
+        # dict_part['Category'] = soup_url.find('h4', {'class': 'kind'}).text
+        dict_part['Category'] = soup_url.find('h3', {'class': 'pageTitle--categoryTitle'}).text
+        # dict_part['Name'] = soup_url.find('h1', {'class': 'name'}).text
+        dict_part['Name'] = soup_url.find('h1', {'class': 'pageTitle'}).text
+        logger.debug(f"Extracting {index} - {dict_part['Category']} - {dict_part['Name']} at {url}")
         dict_part['Link'] = url
-        dict_part['Average rating'] = soup_url.find('span', {'itemprop': 'ratingValue'}).text
-        dict_part['Ratings'] = soup_url.find('span', {'itemprop': 'ratingCount'}).text
+        # dict_part['Average rating'] = soup_url.find('span', {'itemprop': 'ratingValue'}).text
+        rating = soup_url.find('section', {'class': 'xs-col-11'}).text.split('\n')[-3].strip()
+        dict_part['Average rating'] = rating.split()[0].replace('(', '')
+        dict_part['Ratings'] = rating.split()[-2]
+        # dict_part['Ratings'] = soup_url.find('span', {'itemprop': 'ratingCount'}).text
 
-        specs = soup_url.find('div', {'class': 'specs block'})
+        # specs = soup_url.find('div', {'class': 'specs block'})
+        specs = soup_url.find('div', {'class': 'specs'})
         specs_title = []
         specs_value = []
-        for title in specs.find_all('h4'):
+        for title in specs.find_all('h3'):
             specs_title.append(title.text)
-            specs_value.append(title.next_sibling.strip())
+            specs_value.append(title.next_sibling.next_sibling.text.strip())
         for t, v in zip(specs_title, specs_value):
             dict_part[str(t)] = str(v)
 
+        # Prices per merchants
+        # table_merchants = soup_url.find('table', {'class': 'wide-table'})
+        # if table_merchants:
+        #     shops = [x.attrs['class'] for x in table_merchants.find_all('tr')]
+        #     prices = [x.text for x in table_merchants.find_all('td', {'class': 'total'})]
+        #     for s, p in zip(shops, prices):
+        #         dict_part[f"Price {str(s[0])}"] = str(p)
+        # else:
+        #     logger.debug("No prices found.")
+
         # Reviews
-        reviews = soup_url.find_all('div', {'class': 'comment-content'})
-        if reviews:
-            # logger.debug(f"reviews : {reviews}")
-            list_reviews = []
-            for review in reviews:
-                user = review.find('a', {'class': 'comment-username'}).text
-                rating = len(review.find_all('li', {'class': 'full-star'}))
-                text = review.find('div', {'class': 'comment-message markdown'}).text
-                list_reviews.append({'user': user,
-                                     'rating': rating,
-                                     'text': text})
-            dict_part['Reviews'] = str(list_reviews)
+        # reviews = soup_url.find_all('div', {'class': 'comment-content'})
+        # if reviews:
+        #     # logger.debug(f"reviews : {reviews}")
+        #     list_reviews = []
+        #     for review in reviews:
+        #         user = review.find('a', {'class': 'comment-username'}).text
+        #         rating = len(review.find_all('li', {'class': 'full-star'}))
+        #         text = review.find('div', {'class': 'comment-message markdown'}).text
+        #         list_reviews.append({'user': user,
+        #                              'rating': rating,
+        #                              'text': text})
+        #     dict_part['Reviews'] = str(list_reviews)
 
         soup_url.decompose()
 
         dict_parts[index] = dict_part
+
+        logger.debug("Exporting partial dict")
+        new_dict = {k: [v] for k, v in dict_part.items()}
+        df = pd.DataFrame(new_dict)
+        with open(f"Exports/pcpartpicker-parts-data.csv", 'a') as f:
+            if header_found:
+                df.to_csv(f, header=False)
+            else:
+                df.to_csv(f)
+                header_found = True
+        # if index > 3:
+        #     break
+        time.sleep(2)
 
     df = pd.DataFrame.from_dict(dict_parts, orient='index')
     categories = df.Category.unique()
