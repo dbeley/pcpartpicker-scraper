@@ -41,37 +41,46 @@ def main():
 
         # specs = soup_url.find('div', {'class': 'specs block'})
         specs = soup_url.find('div', {'class': 'specs'})
-        specs_title = []
-        specs_value = []
-        for title in specs.find_all('h3'):
-            specs_title.append(title.text)
-            specs_value.append(title.next_sibling.next_sibling.text.strip())
+        # specs_title = []
+        # specs_value = []
+        specs_title = [title.text for title in specs.find_all('h3')]
+        specs_value = [title.next_sibling.next_sibling.text.strip() for title in specs.find_all('h3')]
+        # for title in specs.find_all('h3'):
+        #     specs_title.append(title.text)
+        #     specs_value.append(title.next_sibling.next_sibling.text.strip())
         for t, v in zip(specs_title, specs_value):
             dict_part[str(t)] = str(v)
 
         # Prices per merchants
         # table_merchants = soup_url.find('table', {'class': 'wide-table'})
-        # if table_merchants:
-        #     shops = [x.attrs['class'] for x in table_merchants.find_all('tr')]
-        #     prices = [x.text for x in table_merchants.find_all('td', {'class': 'total'})]
-        #     for s, p in zip(shops, prices):
-        #         dict_part[f"Price {str(s[0])}"] = str(p)
-        # else:
-        #     logger.debug("No prices found.")
+        table_merchants = soup_url.find('table', {'class': 'xs-col-12'})
+        if table_merchants:
+            shops = [x.find('a')['href'].split('/')[2] for x in table_merchants.find_all('td', {"class": 'td__logo'})]
+            prices = [x.text for x in table_merchants.find_all('td', {'class': 'td__base priority--2'})]
+            # shops = [x.attrs['class'] for x in table_merchants.find_all('tr')]
+            # prices = [x.text for x in table_merchants.find_all('td', {'class': 'total'})]
+            for s, p in zip(shops, prices):
+                dict_part[f"Price {str(s[0])}"] = str(p)
+        else:
+            logger.debug("No prices found.")
 
         # Reviews
         # reviews = soup_url.find_all('div', {'class': 'comment-content'})
-        # if reviews:
-        #     # logger.debug(f"reviews : {reviews}")
-        #     list_reviews = []
-        #     for review in reviews:
-        #         user = review.find('a', {'class': 'comment-username'}).text
-        #         rating = len(review.find_all('li', {'class': 'full-star'}))
-        #         text = review.find('div', {'class': 'comment-message markdown'}).text
-        #         list_reviews.append({'user': user,
-        #                              'rating': rating,
-        #                              'text': text})
-        #     dict_part['Reviews'] = str(list_reviews)
+        reviews = soup_url.find_all('div', {'class': 'partReviews__review'})
+        if reviews:
+            # logger.debug(f"reviews : {reviews}")
+            list_reviews = []
+            for review in reviews:
+                # user = review.find('a', {'class': 'comment-username'}).text
+                id = review.find('div', {'class': 'partReviews__name'}).find('a')['href']
+                # rating = len(review.find_all('li', {'class': 'full-star'}))
+                rating = len(review.find('div', {'class': 'partReviews__name'}).find_all('svg', {'class': 'shape-star-full'}))
+                # text = review.find('div', {'class': 'comment-message markdown'}).text
+                text = review.find('div', {'class': 'partReviews__writeup'}).text
+                list_reviews.append({'id': id,
+                                     'rating': rating,
+                                     'text': text})
+            dict_part['Reviews'] = str(list_reviews)
 
         soup_url.decompose()
 
@@ -86,7 +95,7 @@ def main():
             else:
                 df.to_csv(f)
                 header_found = True
-        # if index > 3:
+        # if index > 30:
         #     break
         time.sleep(2)
 
