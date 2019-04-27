@@ -23,7 +23,7 @@ def main():
 
     dict_parts = {}
     header_found = False
-    for index, url in tqdm(enumerate(parts_urls), total=len(parts_urls)):
+    for index, url in tqdm(enumerate(parts_urls), total=len(parts_urls), dynamic_ncols=True):
         dict_part = {}
         logger.debug(f"url : {url}")
         soup_url = get_soup(url)
