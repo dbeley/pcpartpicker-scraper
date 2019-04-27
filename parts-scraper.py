@@ -26,7 +26,14 @@ def main():
     for index, url in tqdm(enumerate(parts_urls), total=len(parts_urls), dynamic_ncols=True):
         dict_part = {}
         logger.debug(f"url : {url}")
-        soup_url = get_soup(url)
+        while True:
+            try:
+                soup_url = get_soup(url)
+            except Exception as e:
+                logger.error(e)
+                continue
+            break
+
         # dict_part['Category'] = soup_url.find('h4', {'class': 'kind'}).text
         dict_part['Category'] = soup_url.find('h3', {'class': 'pageTitle--categoryTitle'}).text
         # dict_part['Name'] = soup_url.find('h1', {'class': 'name'}).text
