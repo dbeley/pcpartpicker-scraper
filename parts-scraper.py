@@ -60,7 +60,7 @@ def main():
             # shops = [x.attrs['class'] for x in table_merchants.find_all('tr')]
             # prices = [x.text for x in table_merchants.find_all('td', {'class': 'total'})]
             for s, p in zip(shops, prices):
-                dict_part[f"Price {str(s[0])}"] = str(p)
+                dict_part[f"Price {s}"] = str(p)
         else:
             logger.debug("No prices found.")
 
