@@ -27,32 +27,30 @@ def main():
         url = f"https://pcpartpicker.com/builds/#page={id_page}"
         logger.debug(f"browser.get({url})")
         browser.get(url)
+        number_of_tries = 0
         while True:
+            number_of_tries += 1
+            time.sleep(4)
+            if number_of_tries > 10:
+                logger.warning(f"More than 10 tries. Waiting 30 seconds...")
+                browser.get(url)
+                time.sleep(30)
             soup = BeautifulSoup(browser.page_source, 'lxml')
-            buildlinks = soup.find_all('a', {'class': 'build-link'})
+            buildlinks = soup.find_all('a', {'class': 'logGroup__target'})
             if buildlinks != old_links:
+                logger.debug("Different links than before. Going to the next page")
                 old_links = buildlinks
                 break
-            logger.warning("Same links extracted twice. Retrying in 1 seconds..")
-            time.sleep(4)
+            logger.warning("Same links extracted twice. Retrying in 4 seconds..")
             old_links = buildlinks
             soup.decompose()
-        # browser.get(url)
-        # # time.sleep(1)
-        # soup = BeautifulSoup(browser.page_source, 'lxml')
-        # buildlinks = soup.find_all('a', {'class': 'build-link'})
-        # while buildlinks == old_links:
-        #     logger.warning("Same links extracted. Retrying..")
-        #     browser.get(url)
-        #     buildlinks = soup.find_all('a', {'class': 'build-link'})
-        #     time.sleep(1)
+
         logger.debug(f"buildlinks : {buildlinks}")
         if not buildlinks:
             break
         for buildlink in buildlinks:
             builds.append(str(buildlink['href']))
-        # old_links = buildlinks
-    builds = [f"https://pcpartpicker.com{x}" for x in builds]
+        break
     logger.debug(f"builds : {builds}")
 
     directory = "Exports"
@@ -62,7 +60,7 @@ def main():
 
     with open('Exports/list_builds_urls.txt', 'w') as f:
         for build in builds:
-            f.write(f"{build}\n")
+            f.write(f"https://pcpartpicker.com{build}\n")
 
     print("Runtime : %.2f seconds" % (time.time() - temps_debut))
 
