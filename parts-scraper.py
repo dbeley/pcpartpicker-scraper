@@ -42,8 +42,8 @@ def main():
         dict_part['Link'] = url
         # dict_part['Average rating'] = soup_url.find('span', {'itemprop': 'ratingValue'}).text
         rating = soup_url.find('section', {'class': 'xs-col-11'}).text.split('\n')[-3].strip()
-        dict_part['Average rating'] = rating.split()[0].replace('(', '')
-        dict_part['Ratings'] = rating.split()[-2]
+        dict_part['Ratings'] = rating.split()[0].replace('(', '')
+        dict_part['Average raing'] = rating.split()[-2]
         # dict_part['Ratings'] = soup_url.find('span', {'itemprop': 'ratingCount'}).text
 
         # specs = soup_url.find('div', {'class': 'specs block'})
@@ -110,6 +110,7 @@ def main():
     categories = df.Category.unique()
     for category in categories:
         temp_df = df[df['Category'] == category]
+        temp_df.dropna(axis=1, how='all', inplace=True)
         filename = f"Exports/pcpartpicker-parts-{category}-data.csv"
         print(f"Writing {filename}")
         temp_df.to_csv(filename, sep=";")
