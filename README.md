@@ -2,12 +2,18 @@
 
 Scraper for pcpartpicker.com
 
+## Installation
+
+```
+pipenv install
+```
+
 ## Usage
 
 ```
-python get_builds_urls.py
-python builds-scraper.py
+pipenv run python get_builds_urls.py
+pipenv run python builds-scraper.py
 
-python get_parts_urls.py
-python parts-scraper.py
+pipenv run python get_parts_urls.py
+pipenv run python parts-scraper.py
 ```
