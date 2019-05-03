@@ -37,6 +37,10 @@ def main():
                 time.sleep(30)
             soup = BeautifulSoup(browser.page_source, 'lxml')
             buildlinks = soup.find_all('a', {'class': 'logGroup__target'})
+
+            if not buildlinks:
+                logger.debug("No links found. Exiting")
+                break
             if buildlinks != old_links:
                 logger.debug("Different links than before. Going to the next page")
                 old_links = buildlinks
@@ -50,7 +54,7 @@ def main():
             break
         for buildlink in buildlinks:
             builds.append(str(buildlink['href']))
-        break
+        # break
     logger.debug(f"builds : {builds}")
 
     directory = "Exports"

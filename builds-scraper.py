@@ -106,8 +106,8 @@ def main():
             dict_builds[index] = dict_build
         except Exception as e:
             logger.error(f"Problem extracting product : {e}")
-        if index > 4:
-            break
+        # if index > 4:
+        #     break
         time.sleep(2)
 
     df = pd.DataFrame.from_dict(dict_builds, orient='index')

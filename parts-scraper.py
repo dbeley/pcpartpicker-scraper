@@ -43,7 +43,7 @@ def main():
         # dict_part['Average rating'] = soup_url.find('span', {'itemprop': 'ratingValue'}).text
         rating = soup_url.find('section', {'class': 'xs-col-11'}).text.split('\n')[-3].strip()
         dict_part['Ratings'] = rating.split()[0].replace('(', '')
-        dict_part['Average raing'] = rating.split()[-2]
+        dict_part['Average rating'] = rating.split()[-2]
         # dict_part['Ratings'] = soup_url.find('span', {'itemprop': 'ratingCount'}).text
 
         # specs = soup_url.find('div', {'class': 'specs block'})
