@@ -1,8 +1,8 @@
-import os
 import time
 import logging
 import argparse
 from bs4 import BeautifulSoup
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
@@ -58,9 +58,7 @@ def main():
     logger.debug(f"builds : {builds}")
 
     directory = "Exports"
-    if not os.path.exists(directory):
-        logger.debug("Creating Exports Folder")
-        os.makedirs(directory)
+    Path(directory).mkdir(parents=True, exist_ok=True)
 
     with open('Exports/list_builds_urls.txt', 'w') as f:
         for build in builds:

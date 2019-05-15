@@ -1,10 +1,10 @@
-import os
 import time
 import logging
 import argparse
 import requests
 import itertools
 from bs4 import BeautifulSoup
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
@@ -23,9 +23,7 @@ def main():
 
     url_index = "https://pcpartpicker.com/products"
     soup_index = BeautifulSoup(requests.get(url_index).content, features='lxml')
-    # cat_products = soup_index.findAll('div', {'class': 'block'})
     cat_products = [x for y in soup_index.findAll('div', {'class': 'block'}) for x in y.findAll('li') if y.find('li')]
-    # cat_products = soup_index.find('div', {'class': 'block'}).find_all('li')
     soup_index.decompose()
 
     all_products = []
@@ -51,9 +49,7 @@ def main():
     logger.debug(f"products : {all_products}")
 
     directory = "Exports"
-    if not os.path.exists(directory):
-        logger.debug("Creating Exports Folder")
-        os.makedirs(directory)
+    Path(directory).mkdir(parents=True, exist_ok=True)
 
     with open('Exports/list_parts_urls.txt', 'w') as f:
         for part in all_products:
