@@ -16,16 +16,15 @@ def get_soup(url):
 
 def main():
     args = parse_args()
-    file = args.file
 
-    with open(file) as f:
+    with open(args.file) as f:
         parts_urls = f.read().splitlines()
 
     dict_parts = {}
     header_found = False
     for index, url in tqdm(enumerate(parts_urls), total=len(parts_urls), dynamic_ncols=True):
         dict_part = {}
-        logger.debug(f"url : {url}")
+        logger.debug("url : %s", url)
         while True:
             try:
                 soup_url = get_soup(url)
@@ -38,7 +37,7 @@ def main():
         dict_part['Category'] = soup_url.find('h3', {'class': 'pageTitle--categoryTitle'}).text
         # dict_part['Name'] = soup_url.find('h1', {'class': 'name'}).text
         dict_part['Name'] = soup_url.find('h1', {'class': 'pageTitle'}).text
-        logger.debug(f"Extracting {index} - {dict_part['Category']} - {dict_part['Name']} at {url}")
+        logger.debug("Extracting %s - {dict_part['Category']} - {dict_part['Name']} at {url}", index)
         dict_part['Link'] = url
         # dict_part['Average rating'] = soup_url.find('span', {'itemprop': 'ratingValue'}).text
         rating = soup_url.find('section', {'class': 'xs-col-11'}).text.split('\n')[-3].strip()
@@ -75,7 +74,6 @@ def main():
         # reviews = soup_url.find_all('div', {'class': 'comment-content'})
         reviews = soup_url.find_all('div', {'class': 'partReviews__review'})
         if reviews:
-            # logger.debug(f"reviews : {reviews}")
             list_reviews = []
             for review in reviews:
                 # user = review.find('a', {'class': 'comment-username'}).text
@@ -112,7 +110,7 @@ def main():
         temp_df = df[df['Category'] == category]
         temp_df.dropna(axis=1, how='all', inplace=True)
         filename = f"Exports/pcpartpicker-parts-{category}-data.csv"
-        print(f"Writing {filename}")
+        print("Writing %s", filename)
         temp_df.to_csv(filename, sep=";")
 
     print("Runtime : %.2f seconds" % (time.time() - temps_debut))

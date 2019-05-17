@@ -15,9 +15,8 @@ def get_soup(url):
 
 def main():
     args = parse_args()
-    file = args.file
 
-    with open(file) as f:
+    with open(args.file) as f:
         builds_urls = f.read().splitlines()
 
     dict_builds = {}
@@ -64,7 +63,7 @@ def main():
             old_component_type = "TEST"
             count_component_type = 2
             for component in table_components:
-                attr = component.find_all('td')
+                # attr = component.find_all('td')
                 try:
                     # component_type = attr[0].text.strip()
                     component_type = component.find('td', {'class': 'td__component'}).text.strip()
@@ -75,44 +74,44 @@ def main():
                         count_component_type = 2
                         old_component_type = component_type
                 except Exception as e:
-                    logger.debug(f"component_type : {e}")
+                    logger.debug("component_type : %s", e)
                     pass
                 try:
                     # component_name = attr[2].text.strip()
                     component_name = component.find('td', {'class': 'td__name'}).text.strip()
                 except Exception as e:
-                    logger.debug(f"component_name : {e}")
+                    logger.debug("component_name : %s", e)
                     component_name = "NA"
                     pass
                 try:
                     # component_final_price = attr[7].text
                     component_final_price = component.find('td', {'class': 'td__price'}).text.strip().replace("Price", "")
                 except Exception as e:
-                    logger.debug(f"component_final_price : {e}")
+                    logger.debug("component_final_price : %s", e)
                     component_final_price = "NA"
                     pass
                 try:
                     # component_shop = attr[8].text.strip()
                     component_shop = component.find('td', {'class': 'td__where'}).find('a')['href'].split('/')[2]
                 except Exception as e:
-                    logger.debug(f"component_shop : {e}")
+                    logger.debug("component_shop : %s", e)
                     component_shop = "NA"
                     pass
                 dict_build[component_type] = component_name
                 dict_build[f"{component_type} Price"] = component_final_price
                 dict_build[f"{component_type} Shop"] = component_shop
 
-            logger.debug(f"Final dict_build : {dict_build}")
+            logger.debug("Final dict_build : %s", dict_build)
             dict_builds[index] = dict_build
         except Exception as e:
-            logger.error(f"Problem extracting product : {e}")
+            logger.error("Problem extracting product : %s", e)
         # if index > 4:
         #     break
         time.sleep(2)
 
     df = pd.DataFrame.from_dict(dict_builds, orient='index')
     filename = f"Exports/pcpartpicker-builds-data.csv"
-    print(f"Writing {filename}")
+    print("Writing %s", filename)
     df.to_csv(filename, sep=";")
 
     print("Runtime : %.2f seconds" % (time.time() - temps_debut))

@@ -32,8 +32,8 @@ def main():
         while True:
             index_page += 1
             cat_link = f"https://pcpartpicker.com{cat.find('a')['href']}#page={index_page}"
-            cat_name = cat.text
-            logger.debug(f"Catégorie : {cat}, Page : {index_page}")
+            # cat_name = cat.text
+            logger.debug("Catégorie : %s, Page : {index_page}", cat)
             browser.get(cat_link)
             time.sleep(5)
             soup = BeautifulSoup(browser.page_source, 'lxml')
@@ -46,7 +46,7 @@ def main():
             all_products.append(products)
 
     all_products = list(itertools.chain.from_iterable(all_products))
-    logger.debug(f"products : {all_products}")
+    logger.debug("products : %s", all_products)
 
     directory = "Exports"
     Path(directory).mkdir(parents=True, exist_ok=True)

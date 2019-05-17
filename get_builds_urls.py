@@ -25,14 +25,14 @@ def main():
     while True:
         id_page = id_page + 1
         url = f"https://pcpartpicker.com/builds/#page={id_page}"
-        logger.debug(f"browser.get({url})")
+        logger.debug("browser.get(%s)", url)
         browser.get(url)
         number_of_tries = 0
         while True:
             number_of_tries += 1
             time.sleep(4)
             if number_of_tries > 10:
-                logger.warning(f"More than 10 tries. Waiting 30 seconds...")
+                logger.warning("More than 10 tries. Waiting 30 seconds...")
                 browser.get(url)
                 time.sleep(30)
             soup = BeautifulSoup(browser.page_source, 'lxml')
@@ -49,13 +49,13 @@ def main():
             old_links = buildlinks
             soup.decompose()
 
-        logger.debug(f"buildlinks : {buildlinks}")
+        logger.debug("buildlinks : %s", buildlinks)
         if not buildlinks:
             break
         for buildlink in buildlinks:
             builds.append(str(buildlink['href']))
         # break
-    logger.debug(f"builds : {builds}")
+    logger.debug("builds : %s", builds)
 
     directory = "Exports"
     Path(directory).mkdir(parents=True, exist_ok=True)
