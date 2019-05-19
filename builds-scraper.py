@@ -44,8 +44,6 @@ def main():
             # dict_build['Comment'] = str(list_comments)
 
             # Detailed build informations
-            # details_title = [x.text for x in soup_build.find('div', {'class': 'block'}).find_all('h4')]
-            # details_value = [x.strip() for x in soup_build.find('div', {'class': 'block'}) if "\n " in x]
             details_title = [x.text for x in soup_build.find_all('h4', {'class': 'group__title'})]
             details_value = [x.text for x in soup_build.find_all('div', {'class': 'group__content'})]
             for t, v in zip(details_title, details_value):
@@ -63,9 +61,7 @@ def main():
             old_component_type = "TEST"
             count_component_type = 2
             for component in table_components:
-                # attr = component.find_all('td')
                 try:
-                    # component_type = attr[0].text.strip()
                     component_type = component.find('td', {'class': 'td__component'}).text.strip()
                     if component_type == '':
                         component_type = f"{old_component_type}_{count_component_type}"
@@ -77,21 +73,18 @@ def main():
                     logger.debug("component_type : %s", e)
                     pass
                 try:
-                    # component_name = attr[2].text.strip()
                     component_name = component.find('td', {'class': 'td__name'}).text.strip()
                 except Exception as e:
                     logger.debug("component_name : %s", e)
                     component_name = "NA"
                     pass
                 try:
-                    # component_final_price = attr[7].text
                     component_final_price = component.find('td', {'class': 'td__price'}).text.strip().replace("Price", "")
                 except Exception as e:
                     logger.debug("component_final_price : %s", e)
                     component_final_price = "NA"
                     pass
                 try:
-                    # component_shop = attr[8].text.strip()
                     component_shop = component.find('td', {'class': 'td__where'}).find('a')['href'].split('/')[2]
                 except Exception as e:
                     logger.debug("component_shop : %s", e)
