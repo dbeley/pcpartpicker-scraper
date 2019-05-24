@@ -35,17 +35,21 @@ def main():
                 logger.warning("More than 10 tries. Waiting 30 seconds...")
                 browser.get(url)
                 time.sleep(30)
-            soup = BeautifulSoup(browser.page_source, 'lxml')
-            buildlinks = soup.find_all('a', {'class': 'logGroup__target'})
+            soup = BeautifulSoup(browser.page_source, "lxml")
+            buildlinks = soup.find_all("a", {"class": "logGroup__target"})
 
             if not buildlinks:
                 logger.debug("No links found. Exiting")
                 break
             if buildlinks != old_links:
-                logger.debug("Different links than before. Going to the next page")
+                logger.debug(
+                    "Different links than before. Going to the next page"
+                )
                 old_links = buildlinks
                 break
-            logger.warning("Same links extracted twice. Retrying in 4 seconds..")
+            logger.warning(
+                "Same links extracted twice. Retrying in 4 seconds.."
+            )
             old_links = buildlinks
             soup.decompose()
 
@@ -53,14 +57,14 @@ def main():
         if not buildlinks:
             break
         for buildlink in buildlinks:
-            builds.append(str(buildlink['href']))
+            builds.append(str(buildlink["href"]))
         # break
     logger.debug("builds : %s", builds)
 
     directory = "Exports"
     Path(directory).mkdir(parents=True, exist_ok=True)
 
-    with open('Exports/list_builds_urls.txt', 'w') as f:
+    with open("Exports/list_builds_urls.txt", "w") as f:
         for build in builds:
             f.write(f"https://pcpartpicker.com{build}\n")
 
@@ -68,13 +72,22 @@ def main():
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Scraper pcpartpicker.com (builds_urls)')
-    parser.add_argument('--debug', help="Display debugging information", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    parser = argparse.ArgumentParser(
+        description="Scraper pcpartpicker.com (builds_urls)"
+    )
+    parser.add_argument(
+        "--debug",
+        help="Display debugging information",
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
+        default=logging.INFO,
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=args.loglevel)
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
